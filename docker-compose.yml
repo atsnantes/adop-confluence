@@ -1,0 +1,43 @@
+version: '2'
+services:
+
+ confluence-postgres:
+  container_name: confluence-postgres
+  image: postgres:9.4
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: "postgres"
+    POSTGRES_ENCODING: "UTF8"
+  volumes:
+    - confluence_postgres_data:/var/lib/postgresql/data
+
+ confluence:
+  container_name: confluence
+  build: .
+  image: atsnantes/adop-confluence-dev:latest
+  ports:
+    - "8090:8090"
+  environment:
+    ADOP_PROXYNAME: "192.168.99.100"
+    ADOP_PROXYPORT: "80"
+    ADOP_PROXYSCHEME: "http"
+    CONFLUENCE_ROOTPATH: "/confluence"
+    DB_HOST: "confluence-postgres"
+    DB_POSTGRES_PASSWORD: "postgres"
+    CONFLUENCE_DB: "confluence"
+    CONFLUENCE_DB_USER: "confluence"
+    CONFLUENCE_DB_PASSWORD: "confluence"
+  volumes:
+    - confluence_data:/var/atlassian/confluence
+    
+volumes:
+  confluence_data:
+    driver: local
+  confluence_postgres_data:
+    driver: local
+    
+networks:
+  default:
+    external:
+      name: local_network
